@@ -1,27 +1,25 @@
-const { Router } = require('express');
-const db = require('../config/db');
+const express = require('express');
 
-const router = Router();
+const { getAllUsers, getAllActiveUsers, getAllDeletedUsers, getAnActiveUser, createUser, softDeleteUser } = require('../controllers/user');
 
-router.get('/users', (req, res) => {
-    const sql = 'SELECT * FROM houseinv.users';
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error('Error executing query:', err);
-            res.status(500).send('Error retrieving data');
-            return;
-        }
-        // console.log('Data retrieved:', results);
-        res.json(results); 
-    });
-});
+const router = express.Router();
 
-// router.post('/user', (req, res) => {
+// ========================
+// USER FETCH ROUTES
+// ========================
+router.get('/users', getAllUsers);                   
+router.get('/users/active', getAllActiveUsers);       
+router.get('/users/deleted', getAllDeletedUsers);     
+router.get('/user/active/:id', getAnActiveUser);      
 
-// });
+// ========================
+// USER POST ROUTES
+// ========================
+router.post('/user', createUser);
 
-// router.put()
-
-// router.delete()
+// ========================
+// USER PATCH ROUTES
+// ========================
+router.patch('/user/:id/delete', softDeleteUser);
 
 module.exports = router; 
