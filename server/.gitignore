@@ -1,3 +1,25 @@
 node_modules/
 
 .env
+
+
+
+<new-branch-name> : feature/new-login or bugfix/header-styling
+
+git checkout main # Ensure you are on the main branch
+git pull origin main # Get the latest changes from the remote main
+git checkout -b feature-branch-name # Create and switch to a new feature branch
+    # Make changes to files
+git add .
+git commit -m "Implement new feature part 1"
+# Repeat for more commits
+git push -u origin feature-branch-name
+
+
+git checkout main # Switch back to the main branch
+git pull origin main # Get the latest changes from remote main
+git merge feature-branch-name # Merge your feature branch into main
+git push origin main # Push the updated main branch to the remote
+
+git branch -d feature-branch-name # Delete local branch
+git push origin --delete feature-branch-name # Delete remote branch
