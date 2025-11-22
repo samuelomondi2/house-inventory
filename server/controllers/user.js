@@ -1,6 +1,48 @@
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 
+const createUser = async (req, res) => {
+    const { household_name, firstname, lastname, email, phone_number, password, role = 3 } = req.body;
+
+    try {
+        // Check if email exists
+        const checkEmailInSQL = 'SELECT id FROM houseinv.users WHERE email = ?';
+
+        db.query(checkEmailInSQL, [email], async (err, existing) => {
+            if (err) {
+                console.error("Error checking existing user:", err);
+                return res.status(500).json({ error: "Database error" });
+            }
+
+            if (existing.length > 0) {
+                return res.status(409).json({ error: "Email already exists" });
+            }
+
+            // Hash password
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            const sql = `INSERT INTO houseinv.users (household_name, firstname, lastname, email, phone_number, password, role)
+                VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+            const params = [ household_name, firstname, lastname, email, phone_number, hashedPassword, role ];
+
+            db.query(sql, params, (err, result) => {
+                if(err) {
+                    console.error('Error inserting user:', err);
+                    return res.status(500).json({ error: "Error creating user" });
+                }
+                res.status(201).json({
+                    message: 'User created successfully',
+                    userId: result.insertId
+                });
+            })
+        });
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
 const getAllUsers = (req, res) => {
     const sql = 'SELECT * FROM houseinv.users';
     db.query(sql, (err, results) => {
@@ -9,7 +51,7 @@ const getAllUsers = (req, res) => {
             res.status(500).send('Error retrieving data');
             return;
         }
-        // console.log('Data retrieved:', results); 
+        console.log('Data retrieved:', results); 
         res.json(results); 
     });
 }
@@ -57,48 +99,6 @@ const getAllDeletedUsers = (req, res) => {
         // console.log('Data retrieved:', results); 
         res.json(results); 
     });
-}
-
-const createUser = async (req, res) => {
-    const { household_name, firstname, lastname, email, phone_number, password, role = 3 } = req.body;
-
-    try {
-        // Check if email exists
-        const checkEmailInSQL = 'SELECT id FROM houseinv.users WHERE email = ?';
-
-        db.query(checkEmailInSQL, [email], async (err, existing) => {
-            if (err) {
-                console.error("Error checking existing user:", err);
-                return res.status(500).json({ error: "Database error" });
-            }
-
-            if (existing.length > 0) {
-                return res.status(409).json({ error: "Email already exists" });
-            }
-
-            // Hash password
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            const sql = `INSERT INTO houseinv.users (household_name, firstname, lastname, email, phone_number, password, role)
-                VALUES (?, ?, ?, ?, ?, ?, ?)`;
-
-            const params = [ household_name, firstname, lastname, email, phone_number, hashedPassword, role ];
-
-            db.query(sql, params, (err, result) => {
-                if(err) {
-                    console.error('Error inserting user:', err);
-                    return res.status(500).json({ error: "Error creating user" });
-                }
-                res.status(201).json({
-                    message: 'User created successfully',
-                    userId: result.insertId
-                });
-            })
-        });
-    } catch (error) {
-        console.error("Unexpected error:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
 }
 
 const softDeleteUser = (req, res) => {
