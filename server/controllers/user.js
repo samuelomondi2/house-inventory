@@ -9,7 +9,7 @@ const getAllUsers = (req, res) => {
             res.status(500).send('Error retrieving data');
             return;
         }
-        // console.log('Data retrieved:', results); 
+        console.log('Data retrieved:', results); 
         res.json(results); 
     });
 }
