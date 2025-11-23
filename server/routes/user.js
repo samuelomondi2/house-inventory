@@ -15,8 +15,8 @@ router.get('/user/active/:id', getAnActiveUser);
 // ========================
 // USER POST ROUTES
 // ========================
-router.post('/user', createUser);
-router.post('/login', loginUser);
+router.post('/auth/register', createUser);
+router.post('/auth/login', loginUser);
 
 // ========================
 // USER PATCH ROUTES
