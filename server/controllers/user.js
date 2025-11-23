@@ -43,6 +43,45 @@ const createUser = async (req, res) => {
     }
 }
 
+const loginUser = (req, res) => {
+    const {email, password} = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+    };
+
+    const sql = 'SELECT * FROM houseinv.users WHERE email = ? AND is_deleted = 0';
+
+    db.query(sql, [email], async (err, results) => {
+        if (err) {
+            console.error("Error during login:", err);
+            return res.status(500).json({ error: "Server error" });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ error: "User not found or deleted" });
+        }
+
+        const user = results[0];
+
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(401).json({ error: "Invalid password" });
+        }
+
+        res.json({
+            message: "Login successful",
+            user: {
+                id: user.id,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                email: user.email,
+                role: user.role
+            }
+        })
+    })
+}
+
 const getAllUsers = (req, res) => {
     const sql = 'SELECT * FROM houseinv.users';
     db.query(sql, (err, results) => {
@@ -124,4 +163,4 @@ const softDeleteUser = (req, res) => {
     });
 }
 
-module.exports = { getAllUsers, getAllActiveUsers, getAllDeletedUsers, getAnActiveUser, createUser, softDeleteUser };
+module.exports = { getAllUsers, getAllActiveUsers, getAllDeletedUsers, getAnActiveUser, createUser, softDeleteUser, loginUser };
