@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { getAllUsers, getAllActiveUsers, getAllDeletedUsers, getAnActiveUser, createUser, softDeleteUser } = require('../controllers/user');
+const { getAllUsers, getAllActiveUsers, getAllDeletedUsers, getAnActiveUser, createUser, softDeleteUser, loginUser } = require('../controllers/user');
 
 const router = express.Router();
 
@@ -16,6 +16,7 @@ router.get('/user/active/:id', getAnActiveUser);
 // USER POST ROUTES
 // ========================
 router.post('/user', createUser);
+router.post('/login', loginUser);
 
 // ========================
 // USER PATCH ROUTES
